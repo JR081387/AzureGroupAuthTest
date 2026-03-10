@@ -69,6 +69,16 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                         var clientSecret = configuration["AzureAd:ClientSecret"];
                         var tenantId = configuration["AzureAd:TenantId"];
 
+                        // Dump all AzureAd keys to find the env var mismatch
+                        var azureAdSection = configuration.GetSection("AzureAd");
+                        foreach (var child in azureAdSection.GetChildren())
+                        {
+                            logger.LogWarning("=== AUTH DEBUG: Config key 'AzureAd:{Key}' = '{Value}'", child.Key, child.Value ?? "NULL");
+                        }
+                        // Also check env var directly
+                        var envSecret = Environment.GetEnvironmentVariable("AzureAD__ClientSecret");
+                        logger.LogWarning("=== AUTH DEBUG: ENV AzureAD__ClientSecret = '{EnvSecret}'", envSecret ?? "NOT SET");
+
                         logger.LogWarning("=== AUTH DEBUG: TenantId: '{TenantId}', ClientId: '{ClientId}', SecretValue: '{SecretValue}'",
                             tenantId ?? "NULL", clientId ?? "NULL", clientSecret ?? "NULL");
 
