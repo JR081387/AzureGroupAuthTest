@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.18.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="10.0.3" />
     <PackageReference Include="Microsoft.Graph" Version="5.*" />
     <PackageReference Include="Microsoft.Identity.Web" Version="4.*" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="4.*" />
