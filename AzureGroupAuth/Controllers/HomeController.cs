@@ -21,18 +21,9 @@ public class HomeController : Controller
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction("Dashboard");
+            return RedirectToAction("Index", "Dashboard");
         }
 
-        return View();
-    }
-
-    public IActionResult Dashboard()
-    {
-        if (User.Identity?.IsAuthenticated != true)
-        {
-            return RedirectToAction("Index");
-        }
         return View();
     }
 
