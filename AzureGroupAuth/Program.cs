@@ -58,9 +58,18 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                         var usersEditGroupId = configuration["AzureAd:Groups:UsersEdit"];
                         var usersViewGroupId = configuration["AzureAd:Groups:UsersView"];
 
+                        logger.LogWarning("=== AUTH DEBUG: User OID: {Oid}", userObjectId);
+                        logger.LogWarning("=== AUTH DEBUG: Config - Admins GroupId: '{AdminId}'", adminGroupId ?? "NULL");
+                        logger.LogWarning("=== AUTH DEBUG: Config - UsersEdit GroupId: '{EditId}'", usersEditGroupId ?? "NULL");
+                        logger.LogWarning("=== AUTH DEBUG: Config - UsersView GroupId: '{ViewId}'", usersViewGroupId ?? "NULL");
+
                         var clientId = configuration["AzureAd:ClientId"];
                         var clientSecret = configuration["AzureAd:ClientSecret"];
                         var tenantId = configuration["AzureAd:TenantId"];
+
+                        logger.LogWarning("=== AUTH DEBUG: TenantId: '{TenantId}', ClientId: '{ClientId}', HasSecret: {HasSecret}",
+                            tenantId ?? "NULL", clientId ?? "NULL", !string.IsNullOrEmpty(clientSecret));
+
                         var clientSecretCredential = new Azure.Identity.ClientSecretCredential(
                             tenantId, clientId, clientSecret);
                         var graphClient = new Microsoft.Graph.GraphServiceClient(clientSecretCredential);
@@ -84,6 +93,12 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                             }
                         }
 
+                        logger.LogWarning("=== AUTH DEBUG: Graph returned {Count} group memberships", allMemberOf.Count);
+                        foreach (var g in allMemberOf)
+                        {
+                            logger.LogWarning("=== AUTH DEBUG: MemberOf group ID: {GroupId}", g.Id);
+                        }
+
                         if (allMemberOf.Count > 0)
                         {
                             var allIds = allMemberOf.Select(g => g.Id).ToList();
@@ -91,21 +106,28 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                             if (allIds.Any(id => string.Equals(id, adminGroupId, StringComparison.OrdinalIgnoreCase)))
                             {
                                 identity.AddClaim(new System.Security.Claims.Claim("groups", adminGroupId!));
+                                logger.LogWarning("=== AUTH DEBUG: MATCHED Admins group");
                             }
                             if (allIds.Any(id => string.Equals(id, usersEditGroupId, StringComparison.OrdinalIgnoreCase)))
                             {
                                 identity.AddClaim(new System.Security.Claims.Claim("groups", usersEditGroupId!));
+                                logger.LogWarning("=== AUTH DEBUG: MATCHED UsersEdit group");
                             }
                             if (allIds.Any(id => string.Equals(id, usersViewGroupId, StringComparison.OrdinalIgnoreCase)))
                             {
                                 identity.AddClaim(new System.Security.Claims.Claim("groups", usersViewGroupId!));
+                                logger.LogWarning("=== AUTH DEBUG: MATCHED UsersView group");
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex, "Error fetching user groups from Graph API");
+                        logger.LogError(ex, "=== AUTH DEBUG: EXCEPTION during Graph API call");
                     }
+                }
+                else
+                {
+                    logger.LogWarning("=== AUTH DEBUG: userObjectId was NULL or empty - cannot look up groups");
                 }
 
                 // Register active session
