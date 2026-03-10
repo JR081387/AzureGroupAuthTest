@@ -31,3 +31,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
+
+## Auth Templates (setup files - not needed in repo)
+AuthTemplates/

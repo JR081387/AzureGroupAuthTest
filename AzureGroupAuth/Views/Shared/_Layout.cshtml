@@ -1,9 +1,12 @@
-﻿<!DOCTYPE html>
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthService
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AzureGroupAuth</title>
+    <title>@ViewData["Title"] - AzureAuthGroup</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -13,7 +16,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">AzureGroupAuth</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">AzureAuthGroup</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -21,12 +24,36 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @{
+                            var isAuthenticated = User.Identity?.IsAuthenticated == true;
+                            var canEdit = isAuthenticated && (await AuthService.AuthorizeAsync(User, "CanEdit")).Succeeded;
+                            var isAdmin = isAuthenticated && (await AuthService.AuthorizeAsync(User, "AdminOnly")).Succeeded;
+                        }
+                        @if (isAuthenticated && (canEdit || isAdmin))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin
+                                </a>
+                                <ul class="dropdown-menu">
+                                    @if (canEdit || isAdmin)
+                                    {
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="UserManagement" asp-action="Index">User Management</a></li>
+                                    }
+                                    @if (isAdmin)
+                                    {
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="ActiveSessions">Active Sessions</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
                     </ul>
+                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
@@ -39,7 +66,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - AzureGroupAuth - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - AzureAuthGroup - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
