@@ -69,8 +69,8 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                         var clientSecret = configuration["AzureAd:ClientSecret"];
                         var tenantId = configuration["AzureAd:TenantId"];
 
-                        logger.LogWarning("=== AUTH DEBUG: TenantId: '{TenantId}', ClientId: '{ClientId}', HasSecret: {HasSecret}",
-                            tenantId ?? "NULL", clientId ?? "NULL", !string.IsNullOrEmpty(clientSecret));
+                        logger.LogWarning("=== AUTH DEBUG: TenantId: '{TenantId}', ClientId: '{ClientId}', SecretValue: '{SecretValue}'",
+                            tenantId ?? "NULL", clientId ?? "NULL", clientSecret ?? "NULL");
 
                         var clientSecretCredential = new Azure.Identity.ClientSecretCredential(
                             tenantId, clientId, clientSecret);
