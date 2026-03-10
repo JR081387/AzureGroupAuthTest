@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Stuff Page</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee; padding: 2rem; }
+        h1 { text-align: center; font-size: 3rem; background: linear-gradient(90deg, #e94560, #0f3460, #16213e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto; }
+        .card { background: #16213e; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        .card h2 { color: #e94560; margin-bottom: 0.8rem; }
+        .card p { line-height: 1.6; color: #aaa; }
+        .fun-fact { border-left: 4px solid #e94560; padding-left: 1rem; margin: 0.5rem 0; }
+        .counter-btn { background: #e94560; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 0.5rem; }
+        .counter-btn:hover { background: #c73650; }
+        #count { font-size: 2rem; font-weight: bold; color: #e94560; }
+        .progress-bar { height: 20px; background: #0f3460; border-radius: 10px; overflow: hidden; margin-top: 0.5rem; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #e94560, #ff6b6b); border-radius: 10px; transition: width 0.5s; }
+        .emoji-rain { font-size: 2rem; cursor: pointer; user-select: none; }
+        .todo-input { background: #0f3460; border: none; color: #eee; padding: 0.5rem; border-radius: 6px; width: 70%; margin-right: 0.5rem; }
+        .color-box { width: 100%; height: 80px; border-radius: 8px; margin-top: 0.5rem; transition: background 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        ul { list-style: none; padding: 0; }
+        ul li { padding: 0.3rem 0; color: #aaa; }
+        ul li::before { content: "~"; margin-right: 0.5rem; color: #e94560; }
+        .clock { font-size: 2.5rem; font-family: monospace; color: #e94560; text-align: center; }
+        footer { text-align: center; margin-top: 3rem; color: #555; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Page of Random Stuff</h1>
+    <div class="grid">
+
+        <div class="card">
+            <h2>Live Clock</h2>
+            <div class="clock" id="clock">00:00:00</div>
+            <p style="margin-top:0.5rem; text-align:center;">Time flies when you're looking at random stuff.</p>
+        </div>
+
+        <div class="card">
+            <h2>Click Counter</h2>
+            <p>How many times can you click?</p>
+            <div id="count">0</div>
+            <button class="counter-btn" onclick="document.getElementById('count').textContent = ++clickCount">Click Me!</button>
+        </div>
+
+        <div class="card">
+            <h2>Fun Facts</h2>
+            <div class="fun-fact"><p>Honey never spoils. Archaeologists found 3000-year-old honey in Egyptian tombs that was still edible.</p></div>
+            <div class="fun-fact"><p>Octopuses have three hearts and blue blood.</p></div>
+            <div class="fun-fact"><p>A group of flamingos is called a "flamboyance."</p></div>
+        </div>
+
+        <div class="card">
+            <h2>Random Color Generator</h2>
+            <p>Click the box for a new color!</p>
+            <div class="color-box" id="colorBox" onclick="randomColor()" style="background:#e94560;">Click me!</div>
+        </div>
+
+        <div class="card">
+            <h2>Mood-o-Meter</h2>
+            <p>Current vibe level:</p>
+            <div class="progress-bar"><div class="progress-fill" id="moodBar" style="width:75%"></div></div>
+            <button class="counter-btn" onclick="randomMood()" style="margin-top:1rem;">Randomize Mood</button>
+        </div>
+
+        <div class="card">
+            <h2>Emoji Slot Machine</h2>
+            <p>Click to spin!</p>
+            <div class="emoji-rain" id="slots" onclick="spinSlots()">🎰 🍒 🍋 🔔</div>
+        </div>
+
+        <div class="card">
+            <h2>Useless To-Do List</h2>
+            <input class="todo-input" id="todoInput" placeholder="Add something pointless..." onkeydown="if(event.key==='Enter')addTodo()">
+            <button class="counter-btn" onclick="addTodo()">Add</button>
+            <ul id="todoList">
+                <li>Stare at this webpage</li>
+                <li>Question life choices</li>
+                <li>Click the counter 100 times</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Random Quote</h2>
+            <p id="quote" style="font-style:italic;">"I'm not superstitious, but I am a little stitious." - Michael Scott</p>
+            <button class="counter-btn" onclick="newQuote()">New Quote</button>
+        </div>
+
+        <div class="card">
+            <h2>Completely Random Stats</h2>
+            <ul>
+                <li>Tacos consumed today: 7</li>
+                <li>Bugs created: 42</li>
+                <li>Coffee cups: infinite</li>
+                <li>Tabs open in browser: 347</li>
+                <li>Times said "it works on my machine": 12</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <footer>Made with absolutely no purpose whatsoever &copy; 2026</footer>
+
+    <script>
+        let clickCount = 0;
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function randomColor() {
+            const hex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+            const box = document.getElementById('colorBox');
+            box.style.background = hex;
+            box.textContent = hex;
+        }
+
+        function randomMood() {
+            const pct = Math.floor(Math.random() * 100);
+            document.getElementById('moodBar').style.width = pct + '%';
+        }
+
+        const emojis = ['🍒','🍋','🔔','⭐','🍀','💎','7️⃣','🍉','🎯','🔥'];
+        function spinSlots() {
+            const pick = () => emojis[Math.floor(Math.random()*emojis.length)];
+            document.getElementById('slots').textContent = `${pick()} ${pick()} ${pick()} ${pick()}`;
+        }
+
+        function addTodo() {
+            const input = document.getElementById('todoInput');
+            if (!input.value.trim()) return;
+            const li = document.createElement('li');
+            li.textContent = input.value;
+            document.getElementById('todoList').appendChild(li);
+            input.value = '';
+        }
+
+        const quotes = [
+            `"I'm not superstitious, but I am a little stitious." - Michael Scott`,
+            `"Why fall in love when you can fall asleep?" - Unknown`,
+            `"I put the 'pro' in procrastination." - Everyone`,
+            `"I need a six-month holiday, twice a year." - Also Everyone`,
+            `"My bed is a magical place where I suddenly remember everything I forgot to do." - Unknown`,
+            `"I followed my heart and it led me to the fridge." - Relatable Human`,
+            `"404: Motivation not found." - The Internet`,
+        ];
+        function newQuote() {
+            document.getElementById('quote').textContent = quotes[Math.floor(Math.random()*quotes.length)];
+        }
+    </script>
+</body>
+</html>
