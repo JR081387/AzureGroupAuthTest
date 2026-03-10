@@ -1,8 +1,70 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Welcome";
+    Layout = "_LayoutLanding";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .login-landing {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f3f3f3 0%, #ffffff 100%);
+    }
+    .login-card {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        max-width: 500px;
+        text-align: center;
+    }
+    .login-title {
+        color: #333333;
+        font-family: "Open Sans", Arial, sans-serif;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .login-subtitle {
+        color: #666666;
+        font-family: "Open Sans", Arial, sans-serif;
+        margin-bottom: 2rem;
+    }
+    .login-text {
+        color: #666666;
+        font-family: "Open Sans", Arial, sans-serif;
+    }
+    .btn-login {
+        background-color: #0078d4;
+        border-color: #0078d4;
+        color: #ffffff;
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-login:hover {
+        background-color: #106ebe;
+        border-color: #106ebe;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
+    }
+</style>
+
+<div class="login-landing">
+    <div class="login-card">
+
+        <h1 class="login-title">Azure Group Auth</h1>
+        <p class="login-subtitle">Group-Based Authentication Test App</p>
+
+        <p class="login-text mb-4">Sign in with your Microsoft account to access the application.</p>
+
+        <a href="/MicrosoftIdentity/Account/SignIn?redirectUri=/Home/Dashboard"
+           class="btn btn-login">
+            Sign In with Microsoft
+        </a>
+
+    </div>
 </div>

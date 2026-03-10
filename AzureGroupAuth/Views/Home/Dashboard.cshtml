@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="text-center mt-4">
+    <h1 class="display-4">Welcome to Azure Group Auth</h1>
+    <p class="lead">You are signed in as <strong>@User.Identity?.Name</strong></p>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Your Claims</h5>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var claim in User.Claims)
+                        {
+                            <tr>
+                                <td><small>@claim.Type.Split('/').Last()</small></td>
+                                <td><small>@claim.Value</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

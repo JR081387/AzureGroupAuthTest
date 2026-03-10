@@ -1,0 +1,37 @@
+@*
+    ============================================================================
+    LANDING PAGE LAYOUT (MINIMAL - NO NAVBAR)
+    ============================================================================
+    Copy this to: Views/Shared/_LayoutLanding.cshtml
+
+    This is a minimal layout used ONLY by the login/landing page.
+    It has no navbar, no footer - just a clean page for the sign-in card.
+    Your main app layout (_Layout.cshtml) is separate and used for
+    authenticated pages.
+    ============================================================================
+*@
+@{
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Your App Name</title> @* <-- CHANGE: Your app name *@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Open Sans", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    @RenderBody()
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

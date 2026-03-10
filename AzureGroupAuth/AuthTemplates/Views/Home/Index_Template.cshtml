@@ -1,0 +1,86 @@
+@{
+    ViewData["Title"] = "Welcome";
+    Layout = "_LayoutLanding";
+}
+
+<style>
+    .caso-landing {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f3f3f3 0%, #ffffff 100%);
+    }
+    .caso-card {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        max-width: 500px;
+        text-align: center;
+    }
+    .caso-logo {
+        max-width: 200px;
+        margin-bottom: 1.5rem;
+    }
+    .caso-title {
+        color: #333333;
+        font-family: "Open Sans", Arial, sans-serif;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .caso-subtitle {
+        color: #666666;
+        font-family: "Open Sans", Arial, sans-serif;
+        margin-bottom: 2rem;
+    }
+    .caso-text {
+        color: #666666;
+        font-family: "Open Sans", Arial, sans-serif;
+    }
+    .btn-caso {
+        background-color: #2ea3f2;
+        border-color: #2ea3f2;
+        color: #ffffff;
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    .btn-caso:hover {
+        background-color: #1a8cd8;
+        border-color: #1a8cd8;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(46, 163, 242, 0.4);
+    }
+    .btn-caso-outline {
+        background-color: transparent;
+        border: 2px solid #2ea3f2;
+        color: #2ea3f2;
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    .btn-caso-outline:hover {
+        background-color: #2ea3f2;
+        color: #ffffff;
+    }
+    .welcome-name {
+        color: #2ea3f2;
+        font-weight: 600;
+    }
+</style>
+
+<div class="caso-landing">
+    <div class="caso-card">
+        <img src="https://caso.com/wp-content/uploads/2017/02/CASO_Logo-NEW.png" alt="CASO Document Management" class="caso-logo" />
+        <h1 class="caso-title">SOW Tracker</h1>
+        <p class="caso-subtitle">Statement of Work Management System</p>
+
+        <p class="caso-text mb-4">Sign in with your CASO account to access the application.</p>
+        <a href="/MicrosoftIdentity/Account/SignIn?redirectUri=/SOW/Index" class="btn btn-caso">
+            Sign In with Microsoft
+        </a>
+    </div>
+</div>

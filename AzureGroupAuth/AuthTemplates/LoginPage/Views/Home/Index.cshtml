@@ -1,0 +1,116 @@
+@*
+    ============================================================================
+    LOGIN / LANDING PAGE
+    ============================================================================
+    Copy this to: Views/Home/Index.cshtml
+
+    This is the first page users see. It displays a branded card with a
+    "Sign In with Microsoft" button that triggers Azure AD authentication.
+
+    IMPORTANT - UPDATE THE REDIRECT URI:
+    Find the <a> tag below with "redirectUri=/SOW/Index" and change
+    "/SOW/Index" to your app's main page URL after authentication.
+    ============================================================================
+*@
+@{
+    ViewData["Title"] = "Welcome";
+    Layout = "_LayoutLanding";
+}
+
+<style>
+    /* ============================================================================
+       LOGIN PAGE STYLES - Customize these for your brand
+       ============================================================================ */
+    .login-landing {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f3f3f3 0%, #ffffff 100%);
+    }
+    .login-card {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        max-width: 500px;
+        text-align: center;
+    }
+    .login-logo {
+        max-width: 200px;
+        margin-bottom: 1.5rem;
+    }
+    .login-title {
+        color: #333333;
+        font-family: "Open Sans", Arial, sans-serif;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .login-subtitle {
+        color: #666666;
+        font-family: "Open Sans", Arial, sans-serif;
+        margin-bottom: 2rem;
+    }
+    .login-text {
+        color: #666666;
+        font-family: "Open Sans", Arial, sans-serif;
+    }
+    /* Primary button - change colors to match your brand */
+    .btn-login {
+        background-color: #2ea3f2;  /* <-- CHANGE: your brand primary color */
+        border-color: #2ea3f2;      /* <-- CHANGE: your brand primary color */
+        color: #ffffff;
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-login:hover {
+        background-color: #1a8cd8;  /* <-- CHANGE: your brand hover color */
+        border-color: #1a8cd8;      /* <-- CHANGE: your brand hover color */
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(46, 163, 242, 0.4);
+    }
+</style>
+
+<div class="login-landing">
+    <div class="login-card">
+
+        @* ====================================================================
+           CHANGE: Replace with your company logo URL or local image path
+           Example: <img src="~/images/my-logo.png" ... />
+           ==================================================================== *@
+        <img src="https://caso.com/wp-content/uploads/2017/02/CASO_Logo-NEW.png"
+             alt="Company Logo"
+             class="login-logo" />
+
+        @* ====================================================================
+           CHANGE: Your app name and description
+           ==================================================================== *@
+        <h1 class="login-title">Your App Name</h1>
+        <p class="login-subtitle">Your App Description</p>
+
+        <p class="login-text mb-4">Sign in with your Microsoft account to access the application.</p>
+
+        @* ====================================================================
+           >>> CRITICAL: CHANGE THE redirectUri VALUE <<<
+
+           The redirectUri tells Azure AD where to send the user AFTER
+           they successfully authenticate. Change "/SOW/Index" to YOUR
+           app's main page.
+
+           Examples:
+             redirectUri=/Dashboard/Index
+             redirectUri=/Products
+             redirectUri=/Admin/Home
+             redirectUri=/
+           ==================================================================== *@
+        <a href="/MicrosoftIdentity/Account/SignIn?redirectUri=/SOW/Index"
+           class="btn btn-login">
+            Sign In with Microsoft
+        </a>
+
+    </div>
+</div>

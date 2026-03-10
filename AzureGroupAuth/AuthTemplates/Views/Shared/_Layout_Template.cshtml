@@ -1,0 +1,135 @@
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthService
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-nav="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SOWTracker</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/design-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/ef-components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SOWTracker.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-ef border-bottom box-shadow">
+            <div class="container-fluid">
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="https://caso.com/wp-content/uploads/2017/02/CASO_Logo-NEW.png" alt="CASO" height="28" class="me-2" />
+                    SOW Tracker
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="SOW" asp-action="Index">Pipeline</a>
+                        </li>
+                        @{
+                            var isAuthenticated = User.Identity?.IsAuthenticated == true;
+                            var canEdit = isAuthenticated && (await AuthService.AuthorizeAsync(User, "CanEdit")).Succeeded;
+                            var isAdmin = isAuthenticated && (await AuthService.AuthorizeAsync(User, "AdminOnly")).Succeeded;
+                        }
+                        @if (isAuthenticated)
+                        {
+                            if (canEdit)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="SOW" asp-action="Create">New SOW</a>
+                                </li>
+                            }
+                            if (canEdit || isAdmin)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Admin
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="UserManagement" asp-action="Index">User Management</a></li>
+                                        @if (isAdmin)
+                                        {
+                                            <li><a class="dropdown-item" asp-area="" asp-controller="Admin" asp-action="ActiveSessions">Active Sessions</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="SOW" asp-action="Export">Export CSV</a>
+                        </li>
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid px-4">
+        <main role="main" class="pb-3">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer" style="color:var(--ef-text-muted);">
+        <div class="container">
+            &copy; 2026 - SOWTracker - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <!-- Theme Switcher -->
+    <button class="theme-toggle-btn" id="theme-toggle" onclick="togglePanel()" aria-label="Theme settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+    </button>
+    <div class="theme-panel" id="theme-panel" style="display:none">
+        <div class="theme-group">
+            <h4>Navigation</h4>
+            <div class="theme-opt active" data-nav="light" onclick="setNav('light')"><div class="theme-swatch" style="background:#fff"></div>Light</div>
+            <div class="theme-opt" data-nav="soft" onclick="setNav('soft')"><div class="theme-swatch" style="background:#e8edf2"></div>Soft Gray</div>
+            <div class="theme-opt" data-nav="slate" onclick="setNav('slate')"><div class="theme-swatch" style="background:#1e293b"></div>Slate</div>
+            <div class="theme-opt" data-nav="dark" onclick="setNav('dark')"><div class="theme-swatch" style="background:#0f172a"></div>Dark</div>
+        </div>
+        <div class="theme-group">
+            <h4>Content</h4>
+            <div class="theme-opt active" data-content="light" onclick="setTheme('light')"><div class="theme-swatch" style="background:#f8f9fb"></div>Light</div>
+            <div class="theme-opt" data-content="dark" onclick="setTheme('dark')"><div class="theme-swatch" style="background:#0f172a"></div>Dark</div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function togglePanel(){var p=document.getElementById('theme-panel'),b=document.getElementById('theme-toggle');var s=p.style.display==='none';p.style.display=s?'block':'none';b.style.display=s?'none':'flex'}
+        function setNav(t){document.documentElement.setAttribute('data-nav',t);localStorage.setItem('ef-nav-theme',t);document.querySelectorAll('.theme-opt[data-nav]').forEach(function(o){o.classList.toggle('active',o.getAttribute('data-nav')===t)})}
+        function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('ef-content-theme',t);document.querySelectorAll('.theme-opt[data-content]').forEach(function(o){o.classList.toggle('active',o.getAttribute('data-content')===t)})}
+        (function(){var n=localStorage.getItem('ef-nav-theme'),c=localStorage.getItem('ef-content-theme');if(n)setNav(n);if(c)setTheme(c)})();
+        document.addEventListener('click',function(e){var p=document.getElementById('theme-panel'),b=document.getElementById('theme-toggle');if(p.style.display==='block'&&!p.contains(e.target)&&e.target!==b&&!b.contains(e.target)){p.style.display='none';b.style.display='flex'}});
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,49 @@
+@*
+    ============================================================================
+    LOGIN PARTIAL - SIGN IN / SIGN OUT DROPDOWN
+    ============================================================================
+    Copy this to: Views/Shared/_LoginPartial.cshtml
+
+    This partial is rendered in your main _Layout.cshtml navbar.
+    It shows:
+      - "Sign in" link when user is NOT authenticated
+      - User's name with a dropdown (email + Sign out) when authenticated
+
+    To use it, add this line inside your _Layout.cshtml navbar:
+      <partial name="_LoginPartial" />
+    ============================================================================
+*@
+@using System.Security.Claims
+
+<ul class="navbar-nav">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @User.Identity?.Name
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li>
+                    <span class="dropdown-item-text">
+                        <strong>@User.FindFirst("preferred_username")?.Value</strong>
+                    </span>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    @* This calls HomeController.Logout() which clears the session
+                       and redirects back to the login page *@
+                    <a class="dropdown-item" asp-controller="Home" asp-action="Logout">Sign out</a>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            @* This triggers the Microsoft Identity sign-in flow *@
+            <a class="nav-link text-white" asp-area="MicrosoftIdentity"
+               asp-controller="Account" asp-action="SignIn">Sign in</a>
+        </li>
+    }
+</ul>

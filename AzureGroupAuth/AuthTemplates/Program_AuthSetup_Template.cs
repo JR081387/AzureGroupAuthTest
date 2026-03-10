@@ -1,13 +1,38 @@
+// ============================================================================
+// AZURE AD GROUP-BASED AUTHENTICATION TEMPLATE
+// ============================================================================
+// This file contains the auth-related code snippets to add to your Program.cs.
+// It is NOT a standalone file — copy the relevant sections into your Program.cs.
+//
+// Required NuGet packages:
+//   - Microsoft.Identity.Web (v4.3.0+)
+//   - Microsoft.Identity.Web.UI
+//   - Microsoft.Graph (v5.80.0+)
+//   - Azure.Identity
+//
+// Required appsettings.json structure:
+//   "AzureAd": {
+//     "Instance": "https://login.microsoftonline.com/",
+//     "TenantId": "<your-tenant-id>",
+//     "ClientId": "<your-client-id>",
+//     "ClientSecret": "<your-client-secret>",
+//     "CallbackPath": "/signin-oidc",
+//     "SignedOutCallbackPath": "/signout-callback-oidc",
+//     "Groups": {
+//       "Admins": "<group-guid>",
+//       "UsersEdit": "<group-guid>",
+//       "UsersView": "<group-guid>"
+//     }
+//   }
+// ============================================================================
+
+// --- USING STATEMENTS (add to top of Program.cs) ---
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
-using AzureGroupAuth.Services;
-using AzureGroupAuth.Middleware;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// --- AUTHENTICATION SETUP ---
+// --- AUTHENTICATION SETUP (add after builder creation) ---
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
     {
@@ -19,6 +44,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         {
             OnRedirectToIdentityProviderForSignOut = context =>
             {
+                // Remove active session on sign-out
                 var sessionTracker = context.HttpContext.RequestServices.GetRequiredService<SessionTrackingService>();
                 var oid = context.HttpContext.User.FindFirst("oid")?.Value
                     ?? context.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
@@ -27,6 +53,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     sessionTracker.RemoveSession(oid);
                 }
 
+                // Set a clean post-logout redirect URI to avoid AADSTS90015
                 var postLogoutUri = $"{context.Request.Scheme}://{context.Request.Host}/";
                 context.ProtocolMessage.PostLogoutRedirectUri = postLogoutUri;
 
@@ -36,7 +63,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             {
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
 
-                // Remove ALL group claims from token (cookie too large with many groups)
+                // FIX: Remove ALL group claims from token (cookie too large with 80+ groups)
                 // Then fetch only the groups we care about using Microsoft Graph
                 var identity = (System.Security.Claims.ClaimsIdentity)context.Principal!.Identity!;
                 var groupClaims = identity.FindAll("groups").ToList();
@@ -46,6 +73,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     identity.RemoveClaim(claim);
                 }
 
+                // Get user's object ID (oid claim)
                 var userObjectId = context.Principal?.FindFirst("oid")?.Value
                     ?? context.Principal?.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
 
@@ -53,11 +81,13 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 {
                     try
                     {
+                        // Fetch user's group memberships from Microsoft Graph
                         var configuration = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
                         var adminGroupId = configuration["AzureAd:Groups:Admins"];
                         var usersEditGroupId = configuration["AzureAd:Groups:UsersEdit"];
                         var usersViewGroupId = configuration["AzureAd:Groups:UsersView"];
 
+                        // Create Graph client
                         var clientId = configuration["AzureAd:ClientId"];
                         var clientSecret = configuration["AzureAd:ClientSecret"];
                         var tenantId = configuration["AzureAd:TenantId"];
@@ -65,6 +95,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                             tenantId, clientId, clientSecret);
                         var graphClient = new Microsoft.Graph.GraphServiceClient(clientSecretCredential);
 
+                        // Get user's group memberships (with pagination)
                         var allMemberOf = new List<Microsoft.Graph.Models.DirectoryObject>();
                         var memberOf = await graphClient.Users[userObjectId].MemberOf.GetAsync();
 
@@ -72,6 +103,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                         {
                             allMemberOf.AddRange(memberOf.Value);
 
+                            // Handle pagination - get ALL pages
                             while (memberOf.OdataNextLink != null)
                             {
                                 memberOf = await graphClient.Users[userObjectId].MemberOf
@@ -88,6 +120,7 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                         {
                             var allIds = allMemberOf.Select(g => g.Id).ToList();
 
+                            // Add claims ONLY for the groups we care about (case-insensitive)
                             if (allIds.Any(id => string.Equals(id, adminGroupId, StringComparison.OrdinalIgnoreCase)))
                             {
                                 identity.AddClaim(new System.Security.Claims.Claim("groups", adminGroupId!));
@@ -136,7 +169,7 @@ builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
 builder.Services.AddRazorPages();
 
-// --- AUTHORIZATION POLICIES ---
+// --- AUTHORIZATION POLICIES (add after authentication setup) ---
 builder.Services.AddAuthorization(options =>
 {
     var adminGroupId = builder.Configuration["AzureAd:Groups:Admins"];
@@ -165,29 +198,10 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSingleton<SessionTrackingService>();
 builder.Services.AddScoped<GraphService>();
 
-var app = builder.Build();
+// --- MIDDLEWARE PIPELINE (add after app.UseAuthorization()) ---
+// app.UseAuthentication();
+// app.UseAuthorization();
+// app.UseSessionActivityTracking();  // <-- Add this line
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseSessionActivityTracking();
-
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
-app.MapRazorPages();
-
-app.Run();
+// --- RAZOR PAGES (required for Identity UI sign-in/sign-out) ---
+// app.MapRazorPages();
